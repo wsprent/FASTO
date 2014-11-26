@@ -1,0 +1,13 @@
+fun bool isOdd(int x) = not x == (x / 2) * 2
+
+fun int sum ([int] xs) = reduce(fn int (int x, int y) => x + y, 0, xs)
+
+fun [[int]] main() =
+  let n = read(int) in
+  let xs = iota(n) in
+  let ys = { x * 2 | x <- xs | isOdd(x) } in
+  let zs = { x + y | x <- iota(2), y <- iota(3) } in
+  let a = write(sum(ys)) in
+  let b = write(sum(reduce(fn [int] ([int] xs, [int] ys) => {sum (xs), sum (ys)}, {0}, zs))) in
+  zs
+

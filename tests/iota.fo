@@ -1,0 +1,5 @@
+fun int writeInt(int n) = write(n)
+
+fun [int] main() =
+  let a = iota(13) in
+  map(writeInt, a)

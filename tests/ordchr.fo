@@ -1,0 +1,11 @@
+fun char readChar(int i) = read(char)
+
+fun [char] readString(int n) = map(readChar, iota(n))
+
+fun int addOne(int x) = x + 1
+
+fun [char] main() =
+  let n = read(int) in
+  let s1 = readString(n) in
+  let s2 = map(chr,map(addOne, map(ord, s1))) in
+  write (s2)

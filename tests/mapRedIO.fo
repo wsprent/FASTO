@@ -1,0 +1,20 @@
+fun int  plus100(int x) = x + 100
+fun char readChr(int i) = read(char)
+
+fun int  plus   (int x,  int  y) = x + y
+fun char maxChr (char a, char b) = 
+  if a<b then b else a 
+
+fun [char] main() =
+  let N = read(int)             in  // read N from the keyboard
+  let a = iota(N)               in  // produce a = {0, 1, ... N − 1}
+  let b = map(plus100, a)       in  // b = {100, 101, ... , N + 99}
+  let d = reduce(plus,0,b)      in  // d = 100 + 101 + ... + (N+99)
+  let c = map(readChr, a)       in  // reads N chars from keyboard
+  let m = reduce(maxChr,'a',c)  in  // get the max element of c
+  let tmp = write("Sum is: ")   in  // print string "Sum is"
+  let tmp = write(d)            in  // print d (the sum of b)
+  let tmp = write(" Max Char: ")in  // print " Max Char: " 
+  let tmp = write(m)            in  // print max elem of char array
+    c                               // results is input char array
+
