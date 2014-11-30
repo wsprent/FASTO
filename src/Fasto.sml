@@ -74,6 +74,8 @@ functor FastoFn (T : sig eqtype TypeAnnot end) = struct
     | Var of string * pos
     | Plus of Exp * Exp * pos
     | Minus of Exp * Exp * pos
+    | Mult of Exp * Exp * pos
+    | Div of Exp * Exp * pos
     | Equal of Exp * Exp * pos
     | Less of Exp * Exp * pos
     | If of Exp * Exp * Exp * pos

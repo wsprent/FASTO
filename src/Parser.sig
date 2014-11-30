@@ -32,9 +32,11 @@ type t__30__ = (int*int)
 type t__31__ = (int*int)
 type t__32__ = (int*int)
 type t__33__ = (int*int)
-type t__34__ = string*(int*int)
+type t__34__ = (int*int)
 type t__35__ = (int*int)
-type t__36__ = (int*int)
+type t__36__ = string*(int*int)
+type t__37__ = (int*int)
+type t__38__ = (int*int)
 in
 datatype token =
     BOOL of t__1__
@@ -70,9 +72,11 @@ datatype token =
   | REPLICATE of t__31__
   | RPAR of t__32__
   | SCAN of t__33__
-  | STRINGLIT of t__34__
-  | THEN of t__35__
-  | WRITE of t__36__
+  | SLASH of t__34__
+  | STAR of t__35__
+  | STRINGLIT of t__36__
+  | THEN of t__37__
+  | WRITE of t__38__
 end;
 
 val Prog :
