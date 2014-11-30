@@ -465,9 +465,7 @@ and evalFunArg (FunName fid, vtab, ftab, callpos) =
    appropriate FunDec from the lambda and passing it to
    callFunWithVtable.
     *)
-	| evalFunArg (Lambda (rettype, params, body, fpos), vtab, ftab, callpos) =
-		let val lexp = FunDec("lambda", rettype, parems, body, fpos) in
-			(fn aargs => callFunWithVtable(lexp, aargs, ftab, callpos) 
+
 (* Interpreter for Fasto programs:
     1. builds the function symbol table,
     2. interprets the body of "main", and
