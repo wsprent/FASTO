@@ -86,6 +86,21 @@ fun evalBinopNum ( bop, IntVal n1, IntVal n2, pos ) =
     IntVal (bop(n1,n2))
   | evalBinopNum ( bop, e1, e2, pos ) =
     invalidOperands [(Int, Int)] e1 e2 pos
+	
+fun evalUnopNum  ( uop, IntVal n, pos ) =
+    IntVal ( uop(n) )
+ |  evalUnopNum  ( uop, e, pos ) =
+    invalidOperand [Int] e pos
+	
+fun evalBinopBool ( bop, BoolVal b1, BoolVal b2, pos ) =
+    BoolVal ( bop(b1,b2) )
+ |  evalBinopBool ( bop, e1, e2, pos ) =
+    invalidOperands [(Bool, Bool)] e1 e2 pos
+	
+fun evalUnopBool  ( uop, BoolVal b, pos ) =
+    BoolVal ( uop(b) )
+ |  evalUnopBool  ( uop, e, pos ) =
+    invalidOperand [Bool] e pos
 
 fun evalEq ( IntVal n1,     IntVal n2,     pos ) =
     BoolVal (n1=n2)
@@ -181,6 +196,33 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
             val res2   = evalExp(e2, vtab, ftab)
         in  evalBinopNum(op -, res1, res2, pos)
         end
+  | evalExp ( Times(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopNum(op *, res1, res2, pos)
+        end
+  | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopNum(op Int.quot, res1, res2, pos) (* Int.quot instead of div, rounds towards zero *)
+        end
+  | evalExp ( Negate(e, pos), vtab, ftab ) =
+		let val res    = evalExp(e, vtab, ftab)
+		in  evalUnopNum(~, res, pos)
+	(* andalso/orelse are short-circuiting *)
+  | evalExp ( And(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopBool(op andalso, res1, res2, pos) 
+        end
+  | evalExp ( Or(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopBool(op orelse, res1, res2, pos) 
+        end
+  | evalExp ( Not(e, pos), vtab, ftab ) =
+		let val res    = evalExp(e, vtab, ftab)
+		in  evalUnopBool(not, res, pos)
 
   | evalExp ( Equal(e1, e2, pos), vtab, ftab ) =
         let val r1 = evalExp(e1, vtab, ftab)
@@ -467,7 +509,7 @@ and evalFunArg (FunName fid, vtab, ftab, callpos) =
     *)
 	| evalFunArg (Lambda (rettype, params, body, fpos), vtab, ftab, callpos) =
       let 
-        val lexp = FunDec("lambda", rettype, parems, body, fpos)
+        val lexp = FunDec("<lambda>", rettype, parems, body, fpos)
 	  in
         (fn aargs => callFunWithVtable(lexp, aargs, ftab, callpos)
 
