@@ -182,6 +182,18 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
         in  evalBinopNum(op -, res1, res2, pos)
         end
 
+  | evalExp ( Times(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopNum(op *, res1, res2, pos)
+        end
+
+  | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopNum(op Int.quot, res1, res2, pos)
+        end
+
   | evalExp ( Equal(e1, e2, pos), vtab, ftab ) =
         let val r1 = evalExp(e1, vtab, ftab)
             val r2 = evalExp(e2, vtab, ftab)

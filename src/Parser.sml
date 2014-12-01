@@ -513,7 +513,7 @@ val d__1__ = peekVal 2 : Fasto.UnknownTypes.Exp
 val d__2__ = peekVal 1 : (int*int)
 val d__3__ = peekVal 0 : Fasto.UnknownTypes.Exp
 in
-( Mult((d__1__), (d__3__), (d__2__))  ) end : Fasto.UnknownTypes.Exp))
+( Times((d__1__), (d__3__), (d__2__)) ) end : Fasto.UnknownTypes.Exp))
 ;
 (* Rule 21, file Parser.grm, line 80 *)
 val _ = update_ yyact 21
@@ -522,7 +522,7 @@ val d__1__ = peekVal 2 : Fasto.UnknownTypes.Exp
 val d__2__ = peekVal 1 : (int*int)
 val d__3__ = peekVal 0 : Fasto.UnknownTypes.Exp
 in
-( Div((d__1__), (d__3__), (d__2__))   ) end : Fasto.UnknownTypes.Exp))
+( Divide((d__1__), (d__3__), (d__2__))) end : Fasto.UnknownTypes.Exp))
 ;
 (* Rule 22, file Parser.grm, line 81 *)
 val _ = update_ yyact 22

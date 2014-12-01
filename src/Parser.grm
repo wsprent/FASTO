@@ -76,8 +76,8 @@ Exp :     NUM            { Constant (IntVal (#1 $1), #2 $1) }
                          { ArrayLit ($2, (), $1) }
         | Exp PLUS  Exp  { Plus ($1, $3, $2) }
         | Exp MINUS Exp  { Minus($1, $3, $2) }
-        | Exp TIMES Exp  { Mult($1, $3, $2)  }
-        | Exp DIV   Exp  { Div($1, $3, $2)   }
+        | Exp TIMES Exp  { Times($1, $3, $2) }
+        | Exp DIV   Exp  { Divide($1, $3, $2)}
         | Exp DEQ   Exp  { Equal($1, $3, $2) }
         | Exp LTH   Exp  { Less ($1, $3, $2) }
         | IF Exp THEN Exp ELSE Exp %prec ifprec

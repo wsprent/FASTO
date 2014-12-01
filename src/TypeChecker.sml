@@ -100,15 +100,15 @@ and checkExp ftab vtab (exp : In.Exp)
          in (Int,
              Out.Minus (e1_dec, e2_dec, pos))
          end
-    | In.Mult (e1, e2, pos)
+    | In.Times (e1, e2, pos)
       => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
          in (Int,
-             Out.Mult (e1_dec, e2_dec, pos))
+             Out.Times (e1_dec, e2_dec, pos))
          end
-    | In.Div (e1, e2, pos)
+    | In.Divide (e1, e2, pos)
       => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
          in (Int,
-             Out.Div (e1_dec, e2_dec, pos))
+             Out.Divide (e1_dec, e2_dec, pos))
          end
     (* The types for e1, e2 must be the same. The result is always a Bool. *)
     | In.Equal (e1, e2, pos)
