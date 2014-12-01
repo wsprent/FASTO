@@ -78,9 +78,9 @@ and action_12 lexbuf = (
 and action_11 lexbuf = (
  Parser.DEQ    (getPos lexbuf) )
 and action_10 lexbuf = (
- Parser.SLASH  (getPos lexbuf) )
+ Parser.DIV    (getPos lexbuf) )
 and action_9 lexbuf = (
- Parser.STAR   (getPos lexbuf) )
+ Parser.TIMES  (getPos lexbuf) )
 and action_8 lexbuf = (
  Parser.MINUS  (getPos lexbuf) )
 and action_7 lexbuf = (
