@@ -101,6 +101,10 @@ Exp :     NUM            { Constant (IntVal (#1 $1), #2 $1) }
                         { Map ($3, $5, (), (), $1) }
         | REDUCE LPAR OP BinOp COMMA Exp COMMA Exp RPAR
                         { Reduce ($4, $6, $8, (), $1) }
+        | FILTER LPAR FunArg COMMA Exp RPAR
+                        { Filter ($3, $5, (), $1) }
+        | SCAN LPAR FunArg COMMA Exp COMMA Exp RPAR
+                        { Scan ($3, $5, $7, (), $1) }
         | LPAR Exp RPAR { $2 }
         | LET ID EQ Exp IN Exp %prec letprec
                         { Let (Dec (#1 $2, $4, $3), $6, $1) }
