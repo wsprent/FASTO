@@ -245,6 +245,30 @@ and checkExp ftab vtab (exp : In.Exp)
             else raise err ("array element", elem_type)
          end
 
+     | In.Scan (f, exp, arr_exp, _, pos)
+      => let val (exp_type, exp_dec) = checkExp ftab vtab exp
+             val (arr_type, arr_dec) = checkExp ftab vtab arr_exp
+             val elem_type =
+                 case arr_type of
+                     Array t => if (t = exp_type)
+                                then t
+                                else raise Error ("Scan: Type neutral and array elements do not match", pos)
+                   | other   =>  raise Error ("Scan: Argument not an array", pos)
+             val (f', f_type) =
+                 case checkFunArg (f, vtab, ftab, pos) of
+                     (f', res_type, [a1_type, a2_type])
+                     => if a1_type = a2_type andalso a1_type = res_type
+                        then (f', res_type)
+                        else raise Error
+                                   ("Scan: incompatible function type of "
+                                    ^ In.ppFunArg 0 f ^": " ^ showFunType ([a1_type, a2_type], res_type), pos)
+                   | (_, res, args) =>
+                     raise Error ("Scan: incompatible function type of "
+                                  ^ In.ppFunArg 0 f ^ ": " ^ showFunType (args, res), pos)
+         in if elem_type = f_type
+            then (Array elem_type, Out.Scan(f', exp_dec, arr_dec, elem_type, pos))
+            else raise Error("Scan: Type of function and arguments do not match", pos)
+         end
      | In.Replicate (n_exp, exp, t, pos)
       => let val (n_type, n_dec) = checkExp ftab vtab n_exp
              val (exp_t, exp_dec) = checkExp ftab vtab exp
