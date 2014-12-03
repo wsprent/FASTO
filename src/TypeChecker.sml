@@ -269,6 +269,22 @@ and checkExp ftab vtab (exp : In.Exp)
             then (Array elem_type, Out.Scan(f', exp_dec, arr_dec, elem_type, pos))
             else raise Error("Scan: Type of function and arguments do not match", pos)
          end
+     | In.Filter (f, arr, _, pos)
+       => let val (arr_type, arr_dec) = checkExp ftab vtab arr
+              val elem_type =
+                  case arr_type of
+                      Array t => t
+                    | other   =>  raise Error ("Filter: Argument not an array", pos)
+              val (f', arg_type) =
+                  case checkFunArg (f, vtab, ftab, pos) of
+                      (f', Bool, [arg_type]) => (f', arg_type)
+                    | (_, res, args)  =>
+                      raise Error ("Filter: incompatible function type of "
+                                   ^ In.ppFunArg 0 f ^ ": " ^ showFunType (args, res), pos)
+          in if (elem_type = arg_type)
+             then (Array elem_type, Out.Filter(f', arr_dec, elem_type, pos))
+             else raise Error("Filter: types of array and function do not match", pos)
+          end
      | In.Replicate (n_exp, exp, t, pos)
       => let val (n_type, n_dec) = checkExp ftab vtab n_exp
              val (exp_t, exp_dec) = checkExp ftab vtab exp
