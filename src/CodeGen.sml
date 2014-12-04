@@ -622,7 +622,79 @@ structure CodeGen = struct
            , Mips.J loop_beg
            , Mips.LABEL loop_end ]
         end
+      | Scan(binop, acc_exp, arr_exp, ret_type, pos) =>
+            (* Initialize register names *)
+        let val acc_reg = newName "acc_reg" (* Accumulator register *)
+            val old_arr_reg = newName "old_arr_reg" (* Input array address *)
+            val new_arr_reg = newName "new_arr_reg" (* Output array address *)
+            val old_elem_reg = newName "old_elem_reg"
+            val new_elem_reg = newName "new_elem_reg"
+            val arr_size_reg = newName "arr_size_reg" (* New array size = old array size + 1 *)
+            val i_reg = newName "i_reg"
+            val tmp_reg = newName "tmp_reg"
 
+            (*Labels*)
+            val while_s = newName "while_s"
+            val while_e = newName "while_e"
+
+            (*Evaluate array and acc expressions*)
+            val acc_code = compileExp acc_exp vtable acc_reg
+            val arr_code = compileExp arr_exp vtable old_arr_reg;
+            (** - Place array size in reg
+              * - Point o_e_r to first elem in input array
+              * - Old array = [size, >a1<, a2..
+              * - Set i to 0 *)
+            val header_0 = [Mips.LW(arr_size_reg, old_arr_reg, "0"),
+                            Mips.ADDI(old_elem_reg, old_arr_reg, "4"),
+                            Mips.MOVE(i_reg, "0"),
+                            Mips.ADDI(tmp_reg, arr_size_reg, "1")]
+            (* Dynalloc call goes here *)
+            (* place -> newarr[0] 
+             * set new array = [size,-> acc_exp <-, ]
+             * *)
+            val header_1 = [Mips.ADDI(new_elem_reg, place, "4"),
+                            Mips.SW(acc_reg, new_elem_reg, "0")
+                            ]
+            val while_header = [Mips.LABEL while_s,
+                                Mips.SUB (tmp_reg, i_reg, arr_size_reg),
+                                Mips.BGEZ (tmp_reg, while_e) ]
+            (* While Loop:
+             * 1. Increment new array pointer
+             * 2. Load old_elem
+             * 3. Call f(acc, old_array_elem) -> acc
+             * 4. Save acc to new array pointer
+             * 5. increment old_elem pointer and i and jump
+             *)
+            val while_load =
+                case getElemSize ret_type of
+                    One =>  [ Mips.ADDI (new_elem_reg, new_elem_reg, "1"),
+                              Mips.LB   (tmp_reg, old_elem_reg, "0") ]
+                  | Four => [ Mips.ADDI (new_elem_reg, new_elem_reg, "4"),
+                              Mips.LW   (tmp_reg, old_elem_reg, "0") ]
+            val while_fun =
+                applyFunArg(binop, [acc_reg, tmp_reg], vtable, acc_reg, pos)
+            val while_save =
+                case getElemSize ret_type of
+                    One  => [ Mips.SB (acc_reg, new_elem_reg, "0"),
+                              Mips.ADDI (old_elem_reg, old_elem_reg, "1")]
+                  | Four => [ Mips.SW (acc_reg, new_elem_reg, "0"),
+                              Mips.ADDI (old_elem_reg, old_elem_reg, "4")]
+            val while_footer = [Mips.ADDI (i_reg, i_reg, "1"),
+                                Mips.J while_s,
+                                Mips.LABEL while_e]
+        in acc_code
+           @ arr_code
+           @ header_0
+           @ dynalloc(tmp_reg, place, ret_type)
+           @ header_1
+           @ while_header
+           @ while_load
+           @ while_fun
+           @ while_save
+           @ while_footer
+
+        end
+            (* dynalloc goes here *)
   (* TODO TASK 1: add case for constant booleans (True/False). *)
 
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at

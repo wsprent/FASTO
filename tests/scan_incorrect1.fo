@@ -1,0 +1,5 @@
+fun int inc(int a,int b) = a + b
+
+fun [int] main() =
+  let x = {3, 2 , 1} in
+  scan(inc, 'a', x)
