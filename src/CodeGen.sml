@@ -694,7 +694,60 @@ structure CodeGen = struct
            @ while_footer
 
         end
-            (* dynalloc goes here *)
+      | Filter (f, arr_exp, tp, pos) =>
+        let val i_reg = newName "i_reg"
+            val new_array_len_reg = newName "new_array_len_reg"
+            val old_array_len_reg = newName "old_array_len_reg"
+            val old_array_reg = newName "old_array_reg"
+            val old_elem_reg = newName "old_elem_reg"
+            val new_elem_reg = "new_elem_reg"
+            val tmp_reg = newName "tmp_reg"
+            val tmp2_reg = newName "tmp2_reg"
+            val while_s = newName "while_s"
+            val while_e = newName "while_e"
+            val if_f = newName "if_f"
+
+            val arr_code = compileExp arr_exp vtable old_array_reg
+            val header = [Mips.MOVE(i_reg, "0"),
+                          Mips.MOVE(new_array_len_reg, "0"),
+                          Mips.LW(old_array_len_reg, old_array_reg, "0")]
+            (* Allocate space *)
+            (* Ready elem_regs for loop *)
+            val while_header = [Mips.ADDI(old_elem_reg, old_array_reg, "4"),
+                                Mips.ADDI(new_elem_reg, place, "4"),
+                                Mips.LABEL(while_s),
+                                Mips.SUB(tmp_reg, i_reg, old_array_len_reg),
+                                Mips.BGEZ(tmp_reg, while_e)]
+            (* Get the next elem of the old array and increment the pointer *)
+            val while_load = case getElemSize tp of
+                                  One => [Mips.LB(tmp_reg, old_elem_reg, "0"),
+                                          Mips.ADDI(old_elem_reg, old_elem_reg, "1")]
+                                | Four => [Mips.LW(tmp_reg, old_elem_reg, "0"),
+                                           Mips.ADDI(old_elem_reg, old_elem_reg, "4")]
+            val while_fun = applyFunArg(f, [tmp_reg], vtable, tmp2_reg, pos)
+            val while_if = case getElemSize tp of
+                                    One => [Mips.BEQ(tmp2_reg, "0", if_f),
+                                            Mips.SB(tmp_reg, new_elem_reg, "0"),
+                                            Mips.ADDI(new_elem_reg, new_elem_reg, "1"),
+                                            Mips.ADDI(new_array_len_reg, new_array_len_reg, "1")]
+                                 | Four => [Mips.BEQ(tmp2_reg, "0", if_f),
+                                            Mips.SW(tmp_reg, new_elem_reg, "0"),
+                                            Mips.ADDI(new_elem_reg, new_elem_reg, "4"),
+                                            Mips.ADDI(new_array_len_reg, new_array_len_reg, "1")]
+            val footer = [Mips.LABEL(if_f),
+                          Mips.ADDI(i_reg, i_reg, "1"),
+                          Mips.J(while_s),
+                          Mips.LABEL(while_e),
+                          Mips.SW(new_array_len_reg, place, "0")]
+        in  arr_code
+          @ header
+          @ dynalloc(old_array_len_reg, place, tp)
+          @ while_header
+          @ while_load
+          @ while_fun
+          @ while_if
+          @ footer
+        end
   (* TODO TASK 1: add case for constant booleans (True/False). *)
 
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at
