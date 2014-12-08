@@ -1,0 +1,4 @@
+fun bool main() =
+  let t1 = write( not (3 == 3)) in
+  let t2 = write(not (3 == 2)) in
+  write (t1 || t2)

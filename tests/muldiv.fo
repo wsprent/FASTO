@@ -1,4 +1,4 @@
 fun int main() =
-  let x = 3 * 2 in
-  let y = 6 / 2 in
+  let x = write(3 * 2) in
+  let y = write(6 / 2) in
   write(x + 2 * y)

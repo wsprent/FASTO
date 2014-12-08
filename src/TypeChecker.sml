@@ -309,7 +309,7 @@ and checkExp ftab vtab (exp : In.Exp)
      | In.Not (e1, pos)
       => let val (e1,e1_dec) =  checkExp ftab vtab e1
          in case (e1,e1_dec) of
-           (Bool, exp_dec') => (Int, Out.Not(exp_dec',pos))
+           (Bool, exp_dec') => (Bool, Out.Not(exp_dec',pos))
          | other           =>  raise Error ("Can only not booleans", pos)
          end
 	| In.And (e1, e2, pos)
