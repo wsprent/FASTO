@@ -88,7 +88,12 @@ and checkExp ftab vtab (exp : In.Exp)
       => (case SymTab.lookup s vtab of
               NONE   => raise Error (("Unknown variable " ^ s), pos)
             | SOME t => (t, Out.Var (s, pos)))
-
+    | In.Negate (e1, pos)
+      => let val (e1,e1_dec) =  checkExp ftab vtab e1
+         in case (e1,e1_dec) of
+           (Int, exp_dec') => (Int, Out.Negate(exp_dec',pos))
+         | other           =>  raise Error ("Can only negate integers", pos)
+         end
     | In.Plus (e1, e2, pos)
       => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
          in (Int,
@@ -301,6 +306,12 @@ and checkExp ftab vtab (exp : In.Exp)
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at
    * how Plus and Minus are implemented for inspiration.
    *)
+     | In.Not (e1, pos)
+      => let val (e1,e1_dec) =  checkExp ftab vtab e1
+         in case (e1,e1_dec) of
+           (Bool, exp_dec') => (Int, Out.Not(exp_dec',pos))
+         | other           =>  raise Error ("Can only not booleans", pos)
+         end
 	| In.And (e1, e2, pos)
 	  => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
          in (Bool,

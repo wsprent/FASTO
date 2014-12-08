@@ -167,7 +167,10 @@ structure CodeGen = struct
           [ Mips.LUI (place, makeConst (n div 65536))
           , Mips.ORI (place, place, makeConst (n mod 65536)) ]
     | Constant (CharVal c, pos) => [ Mips.LI (place, makeConst (ord c)) ]
-
+    | Constant (BoolVal b, pos) => if b then
+                                     [ Mips.LI (place, "1") ]
+                                   else
+                                     [ Mips.MOVE (place, "0") ]
     (* Create/return a label here, collect all string literals of the program
        (in stringTable), and create them in the data section before the heap
        (Mips.ASCIIZ) *)
@@ -219,6 +222,10 @@ structure CodeGen = struct
              NONE          => raise Error ("Name " ^ vname ^ " not found", pos)
            | SOME reg_name => [Mips.MOVE (place, reg_name)]
         )
+    | Negate (exp, pos) =>
+        let val code1 = compileExp exp vtable place
+        in code1 @ [Mips.SUB (place, "0", place)]
+        end
     | Plus (e1, e2, pos) =>
         let val t1 = newName "plus_L"
             val t2 = newName "plus_R"
@@ -390,7 +397,47 @@ structure CodeGen = struct
         in  code1 @ code2 @
             [Mips.SLT (place,t1,t2)]
         end
-
+    | And (e1, e2, pos) =>
+        let val t1 = newName "and_L"
+            val t2 = newName "and_R"
+            val fl = newName "false_label"
+            val el = newName "end_label"
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+            val footer = [Mips.LI(place, "1"), Mips.J(el),
+                          Mips.LABEL fl, Mips.MOVE(place, "0"),
+                          Mips.LABEL el]
+        in   code1
+           @ [Mips.BEQ(t1, "0", fl)]
+           @ code2
+           @ [Mips.BEQ(t2, "0", fl)]
+           @ footer
+        end
+    | Or (e1, e2, pos) =>
+        let val t1 = newName "and_L"
+            val t2 = newName "and_R"
+            val tl = newName "true_label"
+            val el = newName "end_label"
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+            val footer = [Mips.LI(place, "0"), Mips.J(el),
+                          Mips.LABEL tl, Mips.LI(place, "1"),
+                          Mips.LABEL el]
+        in   code1
+           @ [Mips.BNE(t1, "0", tl)]
+           @ code2
+           @ [Mips.BNE(t2, "0", tl)]
+           @ footer
+        end
+    | Not (exp, pos) =>
+        let val code1 = compileExp exp vtable place
+            val set_z = newName "set_zero"
+            val end_l = newName "end_label"
+        in   code1
+          @ [Mips.BNE(place, "0", set_z), Mips.LI(place, "1"),
+             Mips.J(end_l), Mips.LABEL(set_z), Mips.MOVE(place, "0"),
+             Mips.LABEL(end_l)]
+        end
 (*********************************************************)
 (*** Indexing: 1. generate code to compute the index   ***)
 (***           2. check index within bounds            ***)
