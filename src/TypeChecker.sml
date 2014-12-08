@@ -297,20 +297,10 @@ and checkExp ftab vtab (exp : In.Exp)
          end
 
   (* TODO TASK 1: add case for constant booleans (True/False). *)
-
+	
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at
    * how Plus and Minus are implemented for inspiration.
    *)
-	| In.Times (e1, e2, pos)
-	  => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
-         in (Int,
-             Out.Times (e1_dec, e2_dec, pos))
-         end
-	| In.Divide (e1, e2, pos)
-	  => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
-         in (Int,
-             Out.Divide (e1_dec, e2_dec, pos))
-         end
 	| In.And (e1, e2, pos)
 	  => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
          in (Bool,

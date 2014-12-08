@@ -92,6 +92,7 @@ fun evalUnopNum  ( uop, IntVal n, pos ) =
  |  evalUnopNum  ( uop, e, pos ) =
     invalidOperand Int e pos
 
+
 fun evalBinopBool ( bop, BoolVal b1, BoolVal b2, pos ) =
     BoolVal ( bop b1 b2 )
  |  evalBinopBool ( bop, e1, e2, pos ) =
@@ -210,6 +211,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
 		let val res    = evalExp(e, vtab, ftab)
 		in  evalUnopNum(~, res, pos)
         end
+
 	(* andalso/orelse are short-circuiting *)
   | evalExp ( And(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)
@@ -227,18 +229,6 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
 		let val res    = evalExp(e, vtab, ftab)
 		in  evalUnopBool(not, res, pos)
         end
-  | evalExp ( Times(e1, e2, pos), vtab, ftab ) =
-        let val res1   = evalExp(e1, vtab, ftab)
-            val res2   = evalExp(e2, vtab, ftab)
-        in  evalBinopNum(op *, res1, res2, pos)
-        end
-
-  | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
-        let val res1   = evalExp(e1, vtab, ftab)
-            val res2   = evalExp(e2, vtab, ftab)
-        in  evalBinopNum(op Int.quot, res1, res2, pos)
-        end
-
   | evalExp ( Equal(e1, e2, pos), vtab, ftab ) =
         let val r1 = evalExp(e1, vtab, ftab)
             val r2 = evalExp(e2, vtab, ftab)
@@ -528,6 +518,7 @@ and evalFunArg (FunName fid, vtab, ftab, callpos) =
 	  in
         (fn aargs => callFunWithVtable(lexp, aargs, vtab, ftab, callpos), rettype)
       end
+
 (* Interpreter for Fasto programs:
     1. builds the function symbol table,
     2. interprets the body of "main", and
