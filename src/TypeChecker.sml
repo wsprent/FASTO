@@ -337,6 +337,15 @@ and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
          NONE             => raise Error ("Unknown identifier " ^ fname, pos)
        | SOME (ret_type, arg_types, _) => (Out.FunName fname, ret_type, arg_types))
+  | checkFunArg (In.Lambda(rettype, params, body, lampos), vtab, ftab, pos) =
+    let fun getArgTypes args = map (fn (Param (_, ty)) => ty) args
+    in
+    case checkFunWithVtable(In.FunDec("<lambda>", rettype, params, body, lampos),
+                            vtab, ftab, pos) of
+        Out.FunDec(fname, rettype', params', body', pos) =>
+        (Out.Lambda(rettype', params', body', pos), rettype', getArgTypes params')
+          | _ => raise Error("Something went wrong with anonymous function", pos)
+    end
         (* TODO TASK 3:
 
         Add case for In.Lambda.  This can be done by
