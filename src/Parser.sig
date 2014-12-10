@@ -38,11 +38,12 @@ type t__36__ = (int*int)
 type t__37__ = (int*int)
 type t__38__ = (int*int)
 type t__39__ = (int*int)
-type t__40__ = string*(int*int)
-type t__41__ = (int*int)
+type t__40__ = (int*int)
+type t__41__ = string*(int*int)
 type t__42__ = (int*int)
 type t__43__ = (int*int)
 type t__44__ = (int*int)
+type t__45__ = (int*int)
 in
 datatype token =
     AND of t__1__
@@ -77,18 +78,19 @@ datatype token =
   | OP of t__30__
   | OR of t__31__
   | PLUS of t__32__
-  | RBRACKET of t__33__
-  | RCURLY of t__34__
-  | READ of t__35__
-  | REDUCE of t__36__
-  | REPLICATE of t__37__
-  | RPAR of t__38__
-  | SCAN of t__39__
-  | STRINGLIT of t__40__
-  | THEN of t__41__
-  | TIMES of t__42__
-  | TRUE of t__43__
-  | WRITE of t__44__
+  | RARROW of t__33__
+  | RBRACKET of t__34__
+  | RCURLY of t__35__
+  | READ of t__36__
+  | REDUCE of t__37__
+  | REPLICATE of t__38__
+  | RPAR of t__39__
+  | SCAN of t__40__
+  | STRINGLIT of t__41__
+  | THEN of t__42__
+  | TIMES of t__43__
+  | TRUE of t__44__
+  | WRITE of t__45__
 end;
 
 val Prog :
