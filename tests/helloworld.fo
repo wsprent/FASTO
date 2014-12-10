@@ -1,3 +1,0 @@
-fun [char] main() =
-  write("Hello World")
-
