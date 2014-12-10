@@ -826,6 +826,13 @@ structure CodeGen = struct
   and applyFunArg (FunName s, args, vtable, place, pos) : Mips.Prog =
       let val tmp_reg = newName "tmp_reg"
       in  applyRegs(s, args, tmp_reg, pos) @ [Mips.MOVE(place, tmp_reg)] end
+    | applyFunArg (Lambda ( rettype, params, exp, lampos), args, vtab, place, pos) =
+      let fun bindArg (Param(name, tp), arg, vtab) = SymTab.bind name arg vtab
+          val vtab' = SymTab.empty()
+          val vtab' = ListPair.foldr bindArg vtab' (params, args)
+      in compileExp exp vtab' place
+      end
+
      (* TODO TASK 3:
         Add case for Lambda.  This is very similar to how function
         definitions work.  You need to bind the parameters of the
