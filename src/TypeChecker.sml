@@ -344,7 +344,6 @@ and checkFunArg (In.FunName fname, vtab, ftab, pos) =
                             vtab, ftab, pos) of
         Out.FunDec(fname, rettype', params', body', pos) =>
         (Out.Lambda(rettype', params', body', pos), rettype', getArgTypes params')
-          | _ => raise Error("Something went wrong with anonymous function", pos)
     end
         (* TODO TASK 3:
 
