@@ -828,7 +828,7 @@ structure CodeGen = struct
       in  applyRegs(s, args, tmp_reg, pos) @ [Mips.MOVE(place, tmp_reg)] end
     | applyFunArg (Lambda ( rettype, params, exp, lampos), args, vtab, place, pos) =
       let fun bindArg (Param(name, tp), arg, vtab) = SymTab.bind name arg vtab
-          val vtab' = SymTab.empty()
+          val vtab' = vtab
           val vtab' = ListPair.foldr bindArg vtab' (params, args)
       in compileExp exp vtab' place
       end
