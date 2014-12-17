@@ -209,7 +209,6 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
 	(* andalso/orelse are short-circuiting *)
   | evalExp ( And(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)
-        in if res1 %%%%%%%%%%%%%
             val res2   = evalExp(e2, vtab, ftab)
             fun preAndAlso x y = x andalso y
         in  evalBinopBool(preAndAlso, res1, res2, pos) 
