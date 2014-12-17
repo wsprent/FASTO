@@ -21,10 +21,11 @@ open Fasto.UnknownTypes
 %nonassoc ifprec letprec
 %left OR
 %left AND
+%nonassoc NOT
 %left DEQ LTH
 %left PLUS MINUS
 %left TIMES DIV
-%nonassoc NOT NEG
+%nonassoc NEG
 
 
 %start Prog
