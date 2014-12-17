@@ -87,21 +87,11 @@ fun evalBinopNum ( bop, IntVal n1, IntVal n2, pos ) =
   | evalBinopNum ( bop, e1, e2, pos ) =
     invalidOperands [(Int, Int)] e1 e2 pos
 
-fun evalUnopNum  ( uop, IntVal n, pos ) =
-    IntVal ( uop(n) )
- |  evalUnopNum  ( uop, e, pos ) =
-    invalidOperand Int e pos
-
 
 fun evalBinopBool ( bop, BoolVal b1, BoolVal b2, pos ) =
     BoolVal ( bop b1 b2 )
  |  evalBinopBool ( bop, e1, e2, pos ) =
     invalidOperands [(Bool, Bool)] e1 e2 pos
-
-fun evalUnopBool  ( uop, BoolVal b, pos ) =
-    BoolVal ( uop(b) )
- |  evalUnopBool  ( uop, e, pos ) =
-    invalidOperand Bool e pos
 
 fun evalEq ( IntVal n1,     IntVal n2,     pos ) =
     BoolVal (n1=n2)
@@ -208,26 +198,36 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
         in  evalBinopNum(op Int.quot, res1, res2, pos) (* Int.quot instead of div, rounds towards zero *)
         end
   | evalExp ( Negate(e, pos), vtab, ftab ) =
-		let val res    = evalExp(e, vtab, ftab)
-		in  evalUnopNum(~, res, pos)
+    let val res    = evalExp(e, vtab, ftab)
+                fun evalUnopNum  ( uop, IntVal n, pos ) =
+                         IntVal ( uop(n) )
+                      |  evalUnopNum  ( uop, e, pos ) =
+                             invalidOperand Int e pos
+    in  evalUnopNum(~, res, pos)
         end
 
-	(* andalso/orelse are short-circuiting *)
   | evalExp ( And(e1, e2, pos), vtab, ftab ) =
-        let val res1   = evalExp(e1, vtab, ftab)
-            val res2   = evalExp(e2, vtab, ftab)
-            fun preAndAlso x y = x andalso y
-        in  evalBinopBool(preAndAlso, res1, res2, pos) 
+        let val cond1 = evalExp(e1, vtab, ftab)
+        in case cond1 of
+              BoolVal true  => evalExp(e2, vtab, ftab)
+           |  BoolVal false =>  BoolVal false
+           |  other         => raise Error("And condition is not a logical value!", pos)
         end
+
   | evalExp ( Or(e1, e2, pos), vtab, ftab ) =
-        let val res1   = evalExp(e1, vtab, ftab)
-            val res2   = evalExp(e2, vtab, ftab)
-            fun preOrElse x y = x orelse y
-        in  evalBinopBool(preOrElse , res1, res2, pos) 
+        let val cond1 = evalExp(e1, vtab, ftab)
+        in case cond1 of
+              BoolVal true  => BoolVal true
+           |  BoolVal false => evalExp(e2, vtab, ftab)(* || *)
+           |  other         => raise Error("Or condition is not a logical value!", pos)
         end
   | evalExp ( Not(e, pos), vtab, ftab ) =
-		let val res    = evalExp(e, vtab, ftab)
-		in  evalUnopBool(not, res, pos)
+    let val res    = evalExp(e, vtab, ftab)
+                fun evalUnopBool  ( uop, BoolVal b, pos ) =
+                       BoolVal ( uop(b) )
+                    |  evalUnopBool  ( uop, e, pos ) =
+                       invalidOperand Bool e pos
+    in  evalUnopBool(not, res, pos)
         end
   | evalExp ( Equal(e1, e2, pos), vtab, ftab ) =
         let val r1 = evalExp(e1, vtab, ftab)
