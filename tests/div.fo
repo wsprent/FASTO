@@ -1,0 +1,6 @@
+fun int main() =
+    let x0 =  write(3 / 2) in
+    let x1 = write(~3 / 2) in
+    let x2 =  write(3 /~2) in
+    write(~3 /~2)
+

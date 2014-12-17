@@ -1,0 +1,5 @@
+fun bool main() =
+  let x0 = write(1 == 1) in
+  let x1 = write(1 == ~1) in
+  let x2 = write(2 == 1) in
+  write(x0 || x1 || x2)
