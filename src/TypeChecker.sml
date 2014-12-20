@@ -322,6 +322,29 @@ and checkExp ftab vtab (exp : In.Exp)
          in (Bool,
              Out.Or (e1_dec, e2_dec, pos))
          end
+    | In.ArrCompr (e, bs, pr, _, _, pos)
+      => let fun checkBinding (name, exp) =
+                 let val (t, exp') = checkExp ftab vtab exp
+                 in case t of
+                        Array t' => (t', (name, exp'))
+                      | other    => raise Error("Binding is not an array", pos)
+                 end
+             fun checkPred vtab e =
+                 let val (t, e') = checkExp ftab vtab e
+                 in case t of
+                        Bool => e'
+                      | _    => raise Error("Predicate does not have type Bool" , pos) 
+                 end
+             fun conType t []    = t
+               | conType t (x::xs) = Array(conType t xs)
+             fun bindVar ((name, t), vtab) = SymTab.bind name t vtab
+             val (b_t, binds) = unzip (map checkBinding bs)
+             val (names, exps) = unzip binds
+             val vtab' = foldl bindVar vtab (zip (names, b_t))
+             val pr' = map (checkPred vtab') pr
+             val (t, e') = checkExp ftab vtab' e
+         in  (conType t bs, Out.ArrCompr(e', binds, pr', t, b_t, pos))
+         end
   (* TODO: TASK 2: Add case for Scan. Quite similar to Reduce. *)
 
   (* TODO: TASK 2: Add case for Filter.  Quite similar to map, except that the
